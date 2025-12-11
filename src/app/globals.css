@@ -191,3 +191,90 @@ body {
 div[style*="background-color: #1a1a1a"]::-webkit-scrollbar-track {
     background: #1a1a1a;
 }
+
+/* モーダルアニメーション */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* モーダルのレスポンシブ対応 */
+@media (max-width: 768px) {
+  .modal-content {
+    flex-direction: column !important;
+    max-height: 95vh !important;
+  }
+
+  .modal-content > div:first-child {
+    /* 動画エリア */
+    flex: none !important;
+    height: 40vh !important;
+    max-height: 40vh !important;
+    border-right: none !important;
+    border-bottom: 1px solid #222 !important;
+  }
+
+  .modal-content > div:last-child {
+    /* 詳細エリア */
+    flex: 1 !important;
+    padding: 20px !important;
+    max-height: 55vh !important;
+  }
+
+  .modal-content h2 {
+    font-size: 1.5rem !important;
+    margin-bottom: 20px !important;
+  }
+
+  .modal-content [role="tablist"] {
+    gap: 10px !important;
+  }
+
+  .modal-content [role="tab"] {
+    padding: 8px 15px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .modal-content [role="tabpanel"] {
+    padding: 20px !important;
+    font-size: 0.9rem !important;
+    min-height: 100px !important;
+  }
+
+  .modal-content button[aria-label="モーダルを閉じる"] {
+    margin-top: 20px !important;
+    padding: 12px 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content > div:first-child {
+    height: 35vh !important;
+    max-height: 35vh !important;
+  }
+
+  .modal-content > div:last-child {
+    max-height: 60vh !important;
+    padding: 15px !important;
+  }
+
+  .modal-content h2 {
+    font-size: 1.3rem !important;
+    padding-bottom: 15px !important;
+  }
+}

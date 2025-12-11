@@ -1,12 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MotionCard from "./components/MotionCard";
 import { motions, type MotionElement } from "./data/motions";
 
 export default function Home() {
   const [selectedMotion, setSelectedMotion] = useState<MotionElement | null>(null);
   const [activeTab, setActiveTab] = useState<"ae" | "aviutl">("ae");
+
+  // ESCキーでモーダルを閉じる
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && selectedMotion) {
+        setSelectedMotion(null);
+      }
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [selectedMotion]);
+
+  // モーダルが開いているときはbodyのスクロールを防止
+  useEffect(() => {
+    if (selectedMotion) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [selectedMotion]);
 
   return (
     <main className="main-container" style={{ padding: '20px', minHeight: '100vh', background: '#222', position: 'relative' }}>
@@ -24,9 +47,6 @@ export default function Home() {
             key={motion.id}
             col={motion.col}
             row={motion.row}
-            number={motion.id} 
-            symbol={motion.symbol}
-            name={motion.name}
             videoSrc={motion.videoSrc}
             onClick={() => {
               setSelectedMotion(motion);
@@ -39,17 +59,23 @@ export default function Home() {
       {/* 詳細モーダル */}
       {selectedMotion && (
         <div 
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
+          className="modal-overlay"
           style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
             backgroundColor: 'rgba(0, 0, 0, 0.9)',
             backdropFilter: 'blur(8px)',
             zIndex: 1000,
             display: 'flex', justifyContent: 'center', alignItems: 'center',
-            padding: '40px'
+            padding: '20px',
+            animation: 'fadeIn 0.3s ease-out'
           }}
           onClick={() => setSelectedMotion(null)}
         >
           <div 
+            className="modal-content"
             style={{
               width: '100%', maxWidth: '1000px',
               maxHeight: '90vh',
@@ -59,7 +85,8 @@ export default function Home() {
               overflow: 'hidden', 
               display: 'flex', 
               flexDirection: 'row',
-              boxShadow: '0 30px 60px rgba(0,0,0,0.6)'
+              boxShadow: '0 30px 60px rgba(0,0,0,0.6)',
+              animation: 'modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -93,7 +120,7 @@ export default function Home() {
             }}>
               
               {/* タイトル */}
-              <h2 style={{ 
+              <h2 id="modal-title" style={{ 
                 fontSize: '2.2rem', fontFamily: 'serif', margin: '0 0 30px 0',
                 color: '#fff', letterSpacing: '0.05em', lineHeight: 1.2,
                 borderBottom: '1px solid #333', paddingBottom: '20px',
@@ -114,8 +141,11 @@ export default function Home() {
 
               {/* タブと解説ボックス */}
               <div style={{ marginTop: 'auto' }}>
-                <div style={{ display: 'flex', gap: '15px', marginBottom: '0', position: 'relative', top: '1px', zIndex: 1 }}>
+                <div role="tablist" style={{ display: 'flex', gap: '15px', marginBottom: '0', position: 'relative', top: '1px', zIndex: 1 }}>
                   <button 
+                    role="tab"
+                    aria-selected={activeTab === "ae"}
+                    aria-controls="tab-panel"
                     onClick={() => setActiveTab("ae")}
                     style={{
                       background: activeTab === "ae" ? '#1a1a1a' : 'transparent',
@@ -131,6 +161,9 @@ export default function Home() {
                     After Effects
                   </button>
                   <button 
+                    role="tab"
+                    aria-selected={activeTab === "aviutl"}
+                    aria-controls="tab-panel"
                     onClick={() => setActiveTab("aviutl")}
                     style={{
                       background: activeTab === "aviutl" ? '#1a1a1a' : 'transparent',
@@ -148,18 +181,23 @@ export default function Home() {
                 </div>
 
                 {/* 解説ボックス */}
-                <div style={{ 
-                  backgroundColor: '#1a1a1a', 
-                  padding: '25px', 
-                  border: '1px solid #333',
-                  borderRadius: '0 4px 4px 4px',
-                  minHeight: '150px', 
-                  fontSize: '0.95rem', 
-                  color: '#eee', 
-                  lineHeight: '1.8', 
-                  whiteSpace: 'pre-wrap',
-                  boxShadow: 'inset 0 0 20px rgba(0,0,0,0.2)'
-                }}>
+                <div 
+                  role="tabpanel"
+                  id="tab-panel"
+                  aria-labelledby={activeTab === "ae" ? "ae-tab" : "aviutl-tab"}
+                  style={{ 
+                    backgroundColor: '#1a1a1a', 
+                    padding: '25px', 
+                    border: '1px solid #333',
+                    borderRadius: '0 4px 4px 4px',
+                    minHeight: '150px', 
+                    fontSize: '0.95rem', 
+                    color: '#eee', 
+                    lineHeight: '1.8', 
+                    whiteSpace: 'pre-wrap',
+                    boxShadow: 'inset 0 0 20px rgba(0,0,0,0.2)'
+                  }}
+                >
                   {activeTab === "ae" ? selectedMotion.text_ae : selectedMotion.text_aviutl}
                 </div>
               </div>
@@ -167,6 +205,7 @@ export default function Home() {
               {/* CLOSEボタン */}
               <button 
                 onClick={() => setSelectedMotion(null)}
+                aria-label="モーダルを閉じる"
                 style={{
                   marginTop: '40px', padding: '15px 0', width: '100%',
                   backgroundColor: 'transparent', color: '#666', 

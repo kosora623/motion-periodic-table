@@ -1,9 +1,6 @@
 import React from 'react';
 
 type Props = {
-  number?: number;
-  symbol?: string;
-  name?: string;
   videoSrc: string;
   col: number;
   row: number;
